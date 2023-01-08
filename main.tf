@@ -17,7 +17,7 @@ data "aws_ami" "app_ami" {
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = "dev"
+  name = "blog_vpc"
   cidr = "10.0.0.0/16"
 
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
@@ -52,7 +52,7 @@ module "alb" {
 
   vpc_id             = module.blog_vpc.vpc_id
   subnets            = module.blog_vpc.public_subnets
-  security_groups    = module.blog_sg.security_group_id
+  security_groups    = [module.blog_sg.security_group_id]
 
 
   target_groups = [
@@ -94,6 +94,9 @@ module "blog_sg" {
   egress_rules = ["all-all"]
   egress_cidr_blocks = ["0.0.0.0/0"]
 }
+
+
+
 
 resource "aws_security_group" "blog" {
   name        = "blog"
