@@ -31,7 +31,7 @@ module "vpc" {
   }
 }
 
-resource "aws_instance" "blog" {
+/*resource "aws_instance" "blog" {
   ami           = data.aws_ami.app_ami.id
   instance_type = var.instance_type
 
@@ -40,9 +40,25 @@ resource "aws_instance" "blog" {
   tags = {
     Name = "HelloWorld"
   }
+}*/
+
+module "autoscaling" {
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "6.7.0"
+  
+  name = "blog"
+  min_size = 1
+  max_size = 2
+
+  vpc_zone_identifier = module.vpc.public_subnets
+  target_group_arns = module.blog_alb.target_group_arns
+  security_groups = [module.blog_sg.security_group_id]
+
+  image_id           = data.aws_ami.app_ami.id
+  instance_type = var.instance_type
 }
 
-module "alb" {
+module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 8.0"
 
@@ -97,7 +113,7 @@ module "blog_sg" {
 
 
 
-
+/*
 resource "aws_security_group" "blog" {
   name        = "blog"
   description = "Allow https and https in. Allow everything out."
@@ -134,3 +150,5 @@ resource "aws_security_group_rule" "blog_http_out" {
 
   security_group_id = aws_security_group.blog.id
 }
+
+*/
